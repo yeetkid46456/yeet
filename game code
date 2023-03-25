@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Arcade Game</title>
+    <style>
+        #gameboard {
+            background-color: black;
+            height: 400px;
+            width: 600px;
+            margin: auto;
+        }
+        #player {
+            background-color: white;
+            height: 50px;
+            width: 50px;
+            position: absolute;
+            bottom: 50px;
+            left: 275px;
+        }
+        .coin {
+            background-color: yellow;
+            height: 25px;
+            width: 25px;
+            position: absolute;
+            border-radius: 50%;
+        }
+        .enemy {
+            background-color: red;
+            height: 25px;
+            width: 25px;
+            position: absolute;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameboard">
+        <div id="player"></div>
+    </div>
+
+    <script>
+        var player = document.getElementById("player");
+        var score = 0;
+        var enemies = [];
+
+        document.body.onkeydown = function(e) {
+            if (e.keyCode == 37) {
+                player.style.left = parseInt(player.style.left) - 10 + "px";
+            } else if (e.keyCode == 39) {
+                player.style.left = parseInt(player.style.left) + 10 + "px";
+            }
+        };
+
+        setInterval(function() {
+            // spawn coins randomly
+            var coin = document.createElement("div");
+            coin.className = "coin";
+            coin.style.top = Math.floor(Math.random() * 350) + "px";
+            coin.style.left = Math.floor(Math.random() * 550) + "px";
+            document.getElementById("gameboard").appendChild(coin);
+
+            // move coins towards player and check collision
+            var allCoins = document.getElementsByClassName("coin");
+            for (var i = 0; i < allCoins.length; i++) {
+                allCoins[i].style.left = parseInt(allCoins[i].style.left) - 1 + "px";
+                if (isColliding(player, allCoins[i])) {
+                    allCoins[i].parentNode.removeChild(allCoins[i]);
+                    score += 10;
+                    document.getElementById("score").innerHTML = score;
+                }
+            }
+
+            // spawn enemies randomly
+            if (Math.random() > 0.9) {
+                var enemy = document.createElement("div");
+                enemy.className = "enemy";
+                enemy.style.top = Math.floor(Math.random() * 350) + "px";
+                enemy.style.left = "600px";
+                document.getElementById("gameboard").appendChild(enemy);
+                enemies.push(enemy);
+            }
+
+            // move enemies towards player and check collision
+            for (var i = 0; i < enemies.length; i++) {
+                enemies[i].style.left = parseInt(enemies[i].style.left) - 3 + "px";
+                if (isColliding(player, enemies[i])) {
+                    alert("Game over! Your score is: " + score);
+                    location.reload();
+                }
+                if (parseInt(enemies[i].style.left) < -50) {
+                    enemies[i].parentNode.removeChild(enemies[i]);
+                    enemies.splice(i, 1);
+                }
+            }
+
+        }, 10);
+
+        function isColliding(a, b) {
+            var aRect = a.getBoundingClientRect();
+            var bRect = b.getBoundingClientRect();
+
+            return !(
+                (aRect.bottom < bRect.top) ||
+                (aRect.top > bRect.bottom) ||
+                (aRect.right < bRect.left) ||
+                (aRect.left > bRect.right)
+            );
+        }
+    </script>
+</body>
+</html>
+,
